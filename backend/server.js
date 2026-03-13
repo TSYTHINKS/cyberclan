@@ -53,7 +53,7 @@ app.get('*', (req, res) => {
 initGameSockets(io);
 
 // ─── Database Connection ──────────────────────────────────────────────────────
-const MONGO_URI = process.env.MONGO_URI || 'https://cyberclan.onrender.com';
+const MONGO_URI = process.env.MONGO_URI;
 
 mongoose
   .connect(MONGO_URI)
