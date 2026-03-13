@@ -1,0 +1,343 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>CyberClan — Clan Battle Arena</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Rajdhani:wght@300;400;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="css/main.css" />
+</head>
+<body>
+
+<!-- ═══════════════════════════════════════════════════════════════
+     PAGE ROUTER — JavaScript hides/shows these sections
+     ═══════════════════════════════════════════════════════════════ -->
+
+<!-- AUTH PAGE -->
+<div id="page-auth" class="page active">
+  <div class="cyber-bg"></div>
+  <div class="auth-container">
+    <div class="auth-logo">
+      <div class="logo-glyph">⬡</div>
+      <h1>CYBER<span class="neon-cyan">CLAN</span></h1>
+      <p class="tagline">JOIN THE BATTLE. DOMINATE THE GRID.</p>
+    </div>
+
+    <div class="glass-panel auth-panel">
+      <!-- Tab switcher -->
+      <div class="tab-row">
+        <button class="tab-btn active" data-tab="login">LOGIN</button>
+        <button class="tab-btn" data-tab="signup">SIGN UP</button>
+      </div>
+
+      <!-- Login Form -->
+      <div id="tab-login" class="tab-content active">
+        <div class="form-group">
+          <label>EMAIL</label>
+          <input type="email" id="login-email" placeholder="agent@cyberclan.io" />
+        </div>
+        <div class="form-group">
+          <label>PASSWORD</label>
+          <input type="password" id="login-password" placeholder="••••••••" />
+        </div>
+        <button class="cyber-btn primary" id="btn-login">INITIATE LOGIN</button>
+        <div id="auth-error" class="error-msg hidden"></div>
+      </div>
+
+      <!-- Signup Form -->
+      <div id="tab-signup" class="tab-content">
+        <div class="form-group">
+          <label>USERNAME</label>
+          <input type="text" id="signup-username" placeholder="CyberAgent" maxlength="20" />
+        </div>
+        <div class="form-group">
+          <label>EMAIL</label>
+          <input type="email" id="signup-email" placeholder="agent@cyberclan.io" />
+        </div>
+        <div class="form-group">
+          <label>PASSWORD</label>
+          <input type="password" id="signup-password" placeholder="min 6 characters" />
+        </div>
+        <button class="cyber-btn primary" id="btn-signup">CREATE ACCOUNT</button>
+        <div id="signup-error" class="error-msg hidden"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- DASHBOARD PAGE -->
+<div id="page-dashboard" class="page">
+  <nav class="cyber-nav">
+    <div class="nav-logo">⬡ CYBERCLAN</div>
+    <div class="nav-links">
+      <button class="nav-btn active" onclick="showPage('dashboard')">DASHBOARD</button>
+      <button class="nav-btn" onclick="showPage('leaderboard')">LEADERBOARD</button>
+      <button class="nav-btn" onclick="showPage('lobby')">BATTLE</button>
+    </div>
+    <div class="nav-user">
+      <span id="nav-username">AGENT</span>
+      <button class="nav-btn danger" onclick="logout()">LOGOUT</button>
+    </div>
+  </nav>
+
+  <div class="page-content">
+    <div class="dashboard-grid">
+      <!-- Player Card -->
+      <div class="glass-panel player-card">
+        <div class="panel-header">OPERATIVE PROFILE</div>
+        <div class="stat-row"><span>USERNAME</span><span id="dash-username" class="neon-cyan">—</span></div>
+        <div class="stat-row"><span>KILLS</span><span id="dash-kills" class="neon-green">0</span></div>
+        <div class="stat-row"><span>DEATHS</span><span id="dash-deaths" class="neon-red">0</span></div>
+        <div class="stat-row"><span>K/D RATIO</span><span id="dash-kd" class="neon-yellow">0.00</span></div>
+      </div>
+
+      <!-- Clan Card -->
+      <div class="glass-panel clan-card">
+        <div class="panel-header">CLAN STATUS</div>
+        <div id="no-clan-msg">
+          <p class="dim-text">You have no clan.</p>
+          <div class="btn-row">
+            <button class="cyber-btn primary" onclick="showPage('create-clan')">CREATE CLAN</button>
+            <button class="cyber-btn secondary" onclick="showPage('join-clan')">JOIN CLAN</button>
+          </div>
+        </div>
+        <div id="clan-info" class="hidden">
+          <div class="clan-badge" id="clan-badge-display"></div>
+          <div class="stat-row"><span>CLAN</span><span id="dash-clan-name" class="neon-cyan">—</span></div>
+          <div class="stat-row"><span>TAG</span><span id="dash-clan-tag" class="neon-yellow">—</span></div>
+          <div class="stat-row"><span>GEMS</span><span id="dash-clan-gems" class="neon-cyan">0</span></div>
+          <div class="stat-row"><span>REPUTATION</span><span id="dash-clan-rep" class="neon-green">0</span></div>
+          <div class="stat-row"><span>W / L</span><span id="dash-clan-wl" class="neon-yellow">0/0</span></div>
+          <div class="btn-row">
+            <button class="cyber-btn primary" onclick="showPage('lobby')">⚔ BATTLE</button>
+            <button class="cyber-btn danger" onclick="leaveClan()">LEAVE CLAN</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Recent Matches -->
+      <div class="glass-panel recent-matches">
+        <div class="panel-header">RECENT BATTLES</div>
+        <div id="recent-matches-list"><p class="dim-text">Loading...</p></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- CREATE CLAN PAGE -->
+<div id="page-create-clan" class="page">
+  <nav class="cyber-nav">
+    <div class="nav-logo">⬡ CYBERCLAN</div>
+    <div class="nav-links">
+      <button class="nav-btn" onclick="showPage('dashboard')">← BACK</button>
+    </div>
+    <div class="nav-user"><span id="nav-username-clan">AGENT</span></div>
+  </nav>
+  <div class="page-content center-content">
+    <div class="glass-panel form-panel">
+      <div class="panel-header">FORGE YOUR CLAN</div>
+      <div class="form-group">
+        <label>CLAN NAME</label>
+        <input type="text" id="clan-name" placeholder="NeoCybords" maxlength="24" />
+      </div>
+      <div class="form-group">
+        <label>CLAN TAG (2-5 chars)</label>
+        <input type="text" id="clan-tag" placeholder="NCB" maxlength="5" />
+      </div>
+      <div class="form-group">
+        <label>DESCRIPTION</label>
+        <textarea id="clan-desc" placeholder="We dominate the grid..." maxlength="200"></textarea>
+      </div>
+      <div class="form-group">
+        <label>CLAN COLOR</label>
+        <div class="color-row">
+          <input type="color" id="clan-color" value="#00ffff" />
+          <span class="dim-text">Choose your neon signature</span>
+        </div>
+      </div>
+      <button class="cyber-btn primary wide" id="btn-create-clan">FORGE CLAN</button>
+      <div id="create-clan-error" class="error-msg hidden"></div>
+    </div>
+  </div>
+</div>
+
+<!-- JOIN CLAN PAGE -->
+<div id="page-join-clan" class="page">
+  <nav class="cyber-nav">
+    <div class="nav-logo">⬡ CYBERCLAN</div>
+    <div class="nav-links">
+      <button class="nav-btn" onclick="showPage('dashboard')">← BACK</button>
+    </div>
+    <div class="nav-user"><span>AGENT</span></div>
+  </nav>
+  <div class="page-content">
+    <div class="glass-panel" style="margin:2rem auto;max-width:800px">
+      <div class="panel-header">JOIN A CLAN</div>
+      <div class="search-row">
+        <input type="text" id="clan-search" placeholder="Search clans..." />
+        <button class="cyber-btn secondary" id="btn-search-clans">SEARCH</button>
+      </div>
+      <div id="clan-list" class="clan-list"></div>
+    </div>
+  </div>
+</div>
+
+<!-- LEADERBOARD PAGE -->
+<div id="page-leaderboard" class="page">
+  <nav class="cyber-nav">
+    <div class="nav-logo">⬡ CYBERCLAN</div>
+    <div class="nav-links">
+      <button class="nav-btn" onclick="showPage('dashboard')">← DASHBOARD</button>
+      <button class="nav-btn" onclick="showPage('lobby')">BATTLE</button>
+    </div>
+    <div class="nav-user"><span id="nav-username-lb">AGENT</span></div>
+  </nav>
+  <div class="page-content">
+    <div class="glass-panel leaderboard-panel">
+      <div class="panel-header">⚡ GLOBAL LEADERBOARD</div>
+      <div class="lb-header-row">
+        <span>RANK</span><span>CLAN</span><span>GEMS</span><span>REP</span><span>W</span><span>L</span><span>WIN%</span>
+      </div>
+      <div id="leaderboard-list"></div>
+    </div>
+  </div>
+</div>
+
+<!-- GAME LOBBY PAGE -->
+<div id="page-lobby" class="page">
+  <nav class="cyber-nav">
+    <div class="nav-logo">⬡ CYBERCLAN</div>
+    <div class="nav-links">
+      <button class="nav-btn" onclick="showPage('dashboard')">← BACK</button>
+    </div>
+    <div class="nav-user"><span id="nav-username-lobby">AGENT</span></div>
+  </nav>
+  <div class="page-content center-content">
+    <div class="glass-panel lobby-panel">
+      <div class="panel-header">⚔ BATTLE LOBBY</div>
+
+      <!-- Weapon selection -->
+      <div class="weapon-select">
+        <div class="weapon-card active" data-weapon="gun" onclick="selectWeapon('gun')">
+          <div class="weapon-icon">🔫</div>
+          <div class="weapon-name">PULSE GUN</div>
+          <div class="weapon-stats">DMG: 25 | RANGE: FAR</div>
+        </div>
+        <div class="weapon-card" data-weapon="sword" onclick="selectWeapon('sword')">
+          <div class="weapon-icon">⚔</div>
+          <div class="weapon-name">NANO BLADE</div>
+          <div class="weapon-stats">DMG: 50 | RANGE: CLOSE</div>
+        </div>
+      </div>
+
+      <div id="lobby-status" class="lobby-status">
+        <p class="dim-text">Select weapon and enter the arena</p>
+      </div>
+
+      <button class="cyber-btn primary wide pulse-btn" id="btn-find-match">⚡ FIND BATTLE</button>
+      <button class="cyber-btn danger wide hidden" id="btn-cancel-match">CANCEL SEARCH</button>
+
+      <div class="lobby-controls-hint">
+        <div class="hint-row"><kbd>WASD</kbd> Move</div>
+        <div class="hint-row"><kbd>MOUSE</kbd> Look</div>
+        <div class="hint-row"><kbd>SPACE</kbd> Jump</div>
+        <div class="hint-row"><kbd>SHIFT</kbd> Sprint</div>
+        <div class="hint-row"><kbd>LMB</kbd> Attack</div>
+        <div class="hint-row"><kbd>ESC</kbd> Unlock Mouse</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- GAME ARENA PAGE -->
+<div id="page-arena" class="page">
+  <!-- 3D canvas fills entire screen -->
+  <canvas id="game-canvas"></canvas>
+
+  <!-- HUD overlay -->
+  <div class="hud">
+    <!-- Health Bar -->
+    <div class="hud-health">
+      <div class="hud-label">HP</div>
+      <div class="health-bar-bg">
+        <div class="health-bar-fill" id="hud-health-fill"></div>
+      </div>
+      <span id="hud-hp-text">100</span>
+    </div>
+
+    <!-- Weapon indicator -->
+    <div class="hud-weapon">
+      <span id="hud-weapon-icon">🔫</span>
+      <span id="hud-weapon-name">PULSE GUN</span>
+    </div>
+
+    <!-- Crosshair -->
+    <div class="crosshair" id="crosshair">
+      <div class="ch-h"></div><div class="ch-v"></div>
+    </div>
+
+    <!-- Kill feed -->
+    <div class="kill-feed" id="kill-feed"></div>
+
+    <!-- Score board -->
+    <div class="hud-score">
+      <div class="score-team" id="hud-team1-score">
+        <span id="t1-name">TEAM 1</span>
+        <span id="t1-kills" class="score-num">0</span>
+      </div>
+      <div class="score-sep">VS</div>
+      <div class="score-team" id="hud-team2-score">
+        <span id="t2-kills" class="score-num">0</span>
+        <span id="t2-name">TEAM 2</span>
+      </div>
+    </div>
+
+    <!-- Hit indicator (flash on screen) -->
+    <div class="hit-indicator hidden" id="hit-indicator"></div>
+
+    <!-- Damage numbers -->
+    <div id="damage-numbers"></div>
+
+    <!-- Match end overlay -->
+    <div class="match-end-overlay hidden" id="match-end">
+      <div class="match-end-content glass-panel">
+        <div id="match-end-title" class="match-end-title">VICTORY</div>
+        <div id="match-end-details" class="match-end-details"></div>
+        <button class="cyber-btn primary" onclick="exitArena()">RETURN TO LOBBY</button>
+      </div>
+    </div>
+
+    <!-- Waiting for opponent -->
+    <div class="waiting-overlay" id="waiting-overlay">
+      <div class="glass-panel waiting-panel">
+        <div class="spinner"></div>
+        <p>SCANNING FOR OPPONENTS...</p>
+        <button class="cyber-btn danger" onclick="cancelMatchmaking()">CANCEL</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════ SCRIPTS ═══════════════════════════════ -->
+<!-- Three.js CDN -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<!-- Socket.IO client -->
+<script src="/socket.io/socket.io.js"></script>
+
+<!-- App modules (order matters) -->
+<script src="js/ui/api.js"></script>
+<script src="js/ui/auth.js"></script>
+<script src="js/ui/pages.js"></script>
+<script src="js/network/socket.js"></script>
+<script src="js/game/audio.js"></script>
+<script src="js/game/terrain.js"></script>
+<script src="js/game/player.js"></script>
+<script src="js/game/weapons.js"></script>
+<script src="js/game/effects.js"></script>
+<script src="js/game/engine.js"></script>
+<script src="js/ui/hud.js"></script>
+<script src="js/app.js"></script>
+
+</body>
+</html>
