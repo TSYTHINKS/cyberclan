@@ -166,7 +166,16 @@ const Pages = (() => {
     }
   });
 
-  return { refreshDashboard, refreshLeaderboard, loadClanList, joinClan, refreshLobby };
+  // Called from socket.js when a player goes online or offline
+  function updateMemberStatus(userId, status) {
+    // If the clan member list is visible, update their status dot
+    const el = document.getElementById('member-status-' + userId);
+    if (!el) return;
+    el.textContent = status === 'online' ? '🟢' : '⚫';
+    el.title       = status;
+  }
+
+  return { refreshDashboard, refreshLeaderboard, loadClanList, joinClan, refreshLobby, updateMemberStatus };
 })();
 
 /** Global leave clan */
