@@ -70,17 +70,20 @@ function initGameSockets(io) {
 
     // ─── Player Movement Sync ─────────────────────────────────────────────────
 
-    socket.on('playerMove', (data) => {
-      // data: { position: {x,y,z}, rotation: {y}, animation: 'idle'|'walk'|'sprint'|'jump' }
-      const roomId = socket.roomId;
-      if (!roomId) return;
-      // Broadcast to others in same room (not sender)
-      socket.to(roomId).emit('playerMoved', {
-        id: socket.id,
-        username: socket.user.username,
-        ...data
-      });
-    });
+  socket.on('playerMove', (data) => {
+  // data: { position: {x,y,z}, rotation: {y}, animation: 'idle'|'walk'|'sprint'|'jump' }
+  const roomId = socket.roomId;
+  if (!roomId) return;
+  const room = gameRooms.get(roomId);
+  const playerData = room?.players.get(socket.id);
+  // Broadcast to others in same room (not sender)
+  socket.to(roomId).emit('playerMoved', {
+    id: socket.id,
+    username: socket.user.username,
+    team: playerData?.team || 'team2',
+    ...data
+  });
+});
 
     // ─── Combat Events ────────────────────────────────────────────────────────
 
