@@ -38,7 +38,7 @@ const Weapons = (() => {
   function updateRemotePlayer(id, position, rotationY, animation) {
     const rp = remotePlayers.get(id);
     if (!rp) return;
-    rp.mesh.position.set(position.x, position.y - 0.9, position.z);
+    rp.mesh.position.set(position.x, position.y - 1.8, position.z);
     rp.mesh.rotation.y = rotationY;
   }
 
@@ -107,12 +107,13 @@ const Weapons = (() => {
     raycaster.setFromCamera({ x: 0, y: 0 }, cam);
 
     // Check against remote player meshes
-    const targets = [];
-    remotePlayers.forEach((rp, id) => {
-      if (rp.team !== myTeam) {
-        rp.mesh.traverse(child => { if (child.isMesh) targets.push(child); });
-      }
-    });
+const targets = [];
+remotePlayers.forEach((rp, id) => {
+  if (rp.team !== myTeam) {
+    rp.mesh.updateMatrixWorld(true); // sync position before raycasting
+    rp.mesh.traverse(child => { if (child.isMesh) targets.push(child); });
+  }
+});
 
     const hits = raycaster.intersectObjects(targets, true);
     if (hits.length > 0) {
