@@ -45,11 +45,16 @@ const Player = (() => {
     state.alive  = true;
 
     // Set spawn position
-    state.position.set(spawnPoint.x, spawnPoint.y + 0.8, spawnPoint.z);
-    camera.position.copy(state.position);
+state.position.set(spawnPoint.x, spawnPoint.y + 0.8, spawnPoint.z);
+camera.position.copy(state.position);
 
-    // Setup input
-    setupInput();
+// Face toward center — team1 at x=-20 faces right, team2 at x=+20 faces left
+euler.set(0, team === 'team1' ? -Math.PI / 2 : Math.PI / 2, 0);
+camera.quaternion.setFromEuler(euler);
+
+// Setup input
+setupInput();
+   
   }
 
   /**
