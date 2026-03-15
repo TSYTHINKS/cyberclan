@@ -124,6 +124,7 @@ function initGameSockets(io) {
       if (target.team === room.players.get(socket.id)?.team) return;
 
       target.hp = Math.max(0, (target.hp || 100) - data.damage);
+      if (target.dead) return;
 
       // Notify target of damage
       io.to(data.targetId).emit('damaged', {
@@ -157,6 +158,7 @@ function initGameSockets(io) {
       if (!player) return;
 
       player.hp = 100;
+      player.dead = false;
       const spawn = getSpawnPoint(player.team);
       socket.emit('respawned', { hp: 100, spawnPoint: spawn });
       socket.to(roomId).emit('playerRespawned', { id: socket.id, spawnPoint: spawn });
@@ -265,6 +267,7 @@ async function handlePlayerDeath(io, roomId, killerId, victimId, room) {
 
   killer.kills = (killer.kills || 0) + 1;
   victim.deaths = (victim.deaths || 0) + 1;
+  victim.dead = true;
 
   // Track team kills
   room.kills[killer.team] = (room.kills[killer.team] || 0) + 1;
