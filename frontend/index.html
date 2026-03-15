@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -10,10 +11,6 @@
 </head>
 <body>
 
-<!-- ═══════════════════════════════════════════════════════════════
-     PAGE ROUTER — JavaScript hides/shows these sections
-     ═══════════════════════════════════════════════════════════════ -->
-
 <!-- AUTH PAGE -->
 <div id="page-auth" class="page active">
   <div class="cyber-bg"></div>
@@ -23,15 +20,11 @@
       <h1>CYBER<span class="neon-cyan">CLAN</span></h1>
       <p class="tagline">JOIN THE BATTLE. DOMINATE THE GRID.</p>
     </div>
-
     <div class="glass-panel auth-panel">
-      <!-- Tab switcher -->
       <div class="tab-row">
         <button class="tab-btn active" data-tab="login">LOGIN</button>
         <button class="tab-btn" data-tab="signup">SIGN UP</button>
       </div>
-
-      <!-- Login Form -->
       <div id="tab-login" class="tab-content active">
         <div class="form-group">
           <label>EMAIL</label>
@@ -44,8 +37,6 @@
         <button class="cyber-btn primary" id="btn-login">INITIATE LOGIN</button>
         <div id="auth-error" class="error-msg hidden"></div>
       </div>
-
-      <!-- Signup Form -->
       <div id="tab-signup" class="tab-content">
         <div class="form-group">
           <label>USERNAME</label>
@@ -80,9 +71,9 @@
       <button class="nav-btn danger" onclick="logout()">LOGOUT</button>
     </div>
   </nav>
-
   <div class="page-content">
     <div class="dashboard-grid">
+
       <!-- Player Card -->
       <div class="glass-panel player-card">
         <div class="panel-header">OPERATIVE PROFILE</div>
@@ -95,6 +86,8 @@
       <!-- Clan Card -->
       <div class="glass-panel clan-card">
         <div class="panel-header">CLAN STATUS</div>
+
+        <!-- Shown when player has NO clan -->
         <div id="no-clan-msg">
           <p class="dim-text">You have no clan.</p>
           <div class="btn-row">
@@ -102,6 +95,8 @@
             <button class="cyber-btn secondary" onclick="showPage('join-clan')">JOIN CLAN</button>
           </div>
         </div>
+
+        <!-- Shown when player IS in a clan -->
         <div id="clan-info" class="hidden">
           <div class="clan-badge" id="clan-badge-display"></div>
           <div class="stat-row"><span>CLAN</span><span id="dash-clan-name" class="neon-cyan">—</span></div>
@@ -109,9 +104,24 @@
           <div class="stat-row"><span>GEMS</span><span id="dash-clan-gems" class="neon-cyan">0</span></div>
           <div class="stat-row"><span>REPUTATION</span><span id="dash-clan-rep" class="neon-green">0</span></div>
           <div class="stat-row"><span>W / L</span><span id="dash-clan-wl" class="neon-yellow">0/0</span></div>
+
+          <!-- Clan members list with online/offline status -->
+          <div class="panel-header" style="margin-top:1rem">MEMBERS</div>
+          <div id="clan-members-list" style="font-size:0.85rem;"></div>
+
           <div class="btn-row">
             <button class="cyber-btn primary" onclick="showPage('lobby')">⚔ BATTLE</button>
             <button class="cyber-btn danger" onclick="leaveClan()">LEAVE CLAN</button>
+          </div>
+
+          <!-- Only visible to clan leader -->
+          <div id="leader-controls" class="hidden" style="margin-top:1rem;">
+            <div class="panel-header">LEADER CONTROLS</div>
+            <button class="cyber-btn primary wide" onclick="hostStartBattle()">⚡ START CLAN BATTLE</button>
+            <div style="margin-top:0.5rem;">
+              <input type="text" id="challenge-clan-id" placeholder="Paste target Clan ID here" style="margin-bottom:0.5rem" />
+              <button class="cyber-btn secondary wide" onclick="sendChallenge()">⚔ CHALLENGE A CLAN</button>
+            </div>
           </div>
         </div>
       </div>
@@ -121,6 +131,7 @@
         <div class="panel-header">RECENT BATTLES</div>
         <div id="recent-matches-list"><p class="dim-text">Loading...</p></div>
       </div>
+
     </div>
   </div>
 </div>
@@ -217,7 +228,6 @@
     <div class="glass-panel lobby-panel">
       <div class="panel-header">⚔ BATTLE LOBBY</div>
 
-      <!-- Weapon selection -->
       <div class="weapon-select">
         <div class="weapon-card active" data-weapon="gun" onclick="selectWeapon('gun')">
           <div class="weapon-icon">🔫</div>
@@ -244,6 +254,8 @@
         <div class="hint-row"><kbd>SPACE</kbd> Jump</div>
         <div class="hint-row"><kbd>SHIFT</kbd> Sprint</div>
         <div class="hint-row"><kbd>LMB</kbd> Attack</div>
+        <div class="hint-row"><kbd>1 / Q</kbd> Gun</div>
+        <div class="hint-row"><kbd>2 / E</kbd> Sword</div>
         <div class="hint-row"><kbd>ESC</kbd> Unlock Mouse</div>
       </div>
     </div>
@@ -252,12 +264,22 @@
 
 <!-- GAME ARENA PAGE -->
 <div id="page-arena" class="page">
+
   <!-- 3D canvas fills entire screen -->
   <canvas id="game-canvas"></canvas>
 
-  <!-- HUD overlay -->
+  <!-- HUD overlay — everything on top of the 3D view -->
   <div class="hud">
-    <!-- Health Bar -->
+
+    <!-- Match Timer — top left -->
+    <div id="hud-timer" style="
+      position:absolute; top:20px; left:20px;
+      font-family:'Orbitron',monospace; font-size:2rem;
+      color:#00ffff; text-shadow: 0 0 10px #00ffff, 0 0 20px rgba(0,255,255,0.4);
+      pointer-events:none;
+    ">5:00</div>
+
+    <!-- Health Bar — bottom left -->
     <div class="hud-health">
       <div class="hud-label">HP</div>
       <div class="health-bar-bg">
@@ -266,21 +288,22 @@
       <span id="hud-hp-text">100</span>
     </div>
 
-    <!-- Weapon indicator -->
+    <!-- Weapon indicator — bottom right -->
     <div class="hud-weapon">
       <span id="hud-weapon-icon">🔫</span>
       <span id="hud-weapon-name">PULSE GUN</span>
     </div>
 
-    <!-- Crosshair -->
+    <!-- Crosshair — center of screen -->
     <div class="crosshair" id="crosshair">
-      <div class="ch-h"></div><div class="ch-v"></div>
+      <div class="ch-h"></div>
+      <div class="ch-v"></div>
     </div>
 
-    <!-- Kill feed -->
+    <!-- Kill feed — top right -->
     <div class="kill-feed" id="kill-feed"></div>
 
-    <!-- Score board -->
+    <!-- Score board — top center -->
     <div class="hud-score">
       <div class="score-team" id="hud-team1-score">
         <span id="t1-name">TEAM 1</span>
@@ -293,10 +316,10 @@
       </div>
     </div>
 
-    <!-- Hit indicator (flash on screen) -->
+    <!-- Screen flash when you get hit -->
     <div class="hit-indicator hidden" id="hit-indicator"></div>
 
-    <!-- Damage numbers -->
+    <!-- Floating damage numbers -->
     <div id="damage-numbers"></div>
 
     <!-- Match end overlay -->
@@ -308,7 +331,7 @@
       </div>
     </div>
 
-    <!-- Waiting for opponent -->
+    <!-- Waiting for opponent overlay -->
     <div class="waiting-overlay" id="waiting-overlay">
       <div class="glass-panel waiting-panel">
         <div class="spinner"></div>
@@ -316,16 +339,13 @@
         <button class="cyber-btn danger" onclick="cancelMatchmaking()">CANCEL</button>
       </div>
     </div>
+
   </div>
 </div>
 
-<!-- ═══════════════════════════════ SCRIPTS ═══════════════════════════════ -->
-<!-- Three.js CDN -->
+<!-- ═══════════════════════ SCRIPTS ═══════════════════════ -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
-<!-- Socket.IO client -->
 <script src="/socket.io/socket.io.js"></script>
-
-<!-- App modules (order matters) -->
 <script src="js/ui/api.js"></script>
 <script src="js/ui/auth.js"></script>
 <script src="js/ui/pages.js"></script>
@@ -338,6 +358,24 @@
 <script src="js/game/engine.js"></script>
 <script src="js/ui/hud.js"></script>
 <script src="js/app.js"></script>
+
+<script>
+  // Host starts battle for whole clan
+  function hostStartBattle() {
+    Network.connect();
+    Network.hostStartBattle();
+    alert('Battle started! All online clan members are being pulled in.');
+  }
+
+  // Send a challenge to another clan
+  function sendChallenge() {
+    const targetId = document.getElementById('challenge-clan-id').value.trim();
+    if (!targetId) { alert('Paste a Clan ID first'); return; }
+    Network.connect();
+    Network.challengeClan(targetId);
+    alert('Challenge sent! Waiting for their leader to respond.');
+  }
+</script>
 
 </body>
 </html>
